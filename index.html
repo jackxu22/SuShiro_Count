@@ -166,6 +166,72 @@ body {
   color: #111827;
 }
 
+.other-card {
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+.other-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #111827;
+}
+
+.other-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.other-label {
+  color: #6b7280;
+}
+
+.other-input {
+  flex: 1;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 0 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.other-input:focus {
+  border-color: #3b82f6;
+}
+
+.other-unit {
+  color: #6b7280;
+}
+
+.reset-btn {
+  margin-top: 18px;
+  width: 100%;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: #f97316;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(248, 113, 113, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.reset-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
+  opacity: 0.95;
+}
+
 @media (max-width: 360px) {
   .plate-circle {
     width: 72px;
@@ -183,35 +249,35 @@ body {
       <div class="subtitle">点击盘子增加，点击减号减少</div>
     </div>
     <div class="plates-grid">
-      <div class="plate-item" data-price="8">
+      <div class="plate-item" data-price="8" data-count="0">
         <button class="plate-circle white">¥8</button>
         <div class="plate-controls">
           <button class="minus-btn">-</button>
           <div class="count">0</div>
         </div>
       </div>
-      <div class="plate-item" data-price="10">
+      <div class="plate-item" data-price="10" data-count="0">
         <button class="plate-circle red">¥10</button>
         <div class="plate-controls">
           <button class="minus-btn">-</button>
           <div class="count">0</div>
         </div>
       </div>
-      <div class="plate-item" data-price="15">
+      <div class="plate-item" data-price="15" data-count="0">
         <button class="plate-circle gray">¥15</button>
         <div class="plate-controls">
           <button class="minus-btn">-</button>
           <div class="count">0</div>
         </div>
       </div>
-      <div class="plate-item" data-price="20">
+      <div class="plate-item" data-price="20" data-count="0">
         <button class="plate-circle yellow">¥20</button>
         <div class="plate-controls">
           <button class="minus-btn">-</button>
           <div class="count">0</div>
         </div>
       </div>
-      <div class="plate-item" data-price="28">
+      <div class="plate-item" data-price="28" data-count="0">
         <button class="plate-circle black">¥28</button>
         <div class="plate-controls">
           <button class="minus-btn">-</button>
@@ -219,24 +285,40 @@ body {
         </div>
       </div>
     </div>
+    <div class="other-card">
+      <div class="other-title">其他</div>
+      <div class="other-row">
+        <div class="other-label">金额：</div>
+        <input id="otherAmount" class="other-input" type="number" inputmode="decimal" placeholder="0">
+        <div class="other-unit">元</div>
+      </div>
+    </div>
     <div class="total-card">
       <div class="total-label">总价</div>
       <div class="total-amount" id="totalAmount">¥0</div>
     </div>
+    <button class="reset-btn" id="resetBtn">重置</button>
   </div>
 </div>
 <script>
 var plateItems = document.querySelectorAll(".plate-item");
 var totalAmountEl = document.getElementById("totalAmount");
+var otherInput = document.getElementById("otherAmount");
+var resetBtn = document.getElementById("resetBtn");
 
 function updateTotal() {
   var total = 0;
   plateItems.forEach(function (item) {
     var price = Number(item.getAttribute("data-price"));
-    var countText = item.querySelector(".count").textContent;
-    var count = Number(countText) || 0;
+    var count = Number(item.getAttribute("data-count")) || 0;
     total += price * count;
   });
+  if (otherInput) {
+    var otherValue = Number(otherInput.value);
+    if (!isNaN(otherValue) && otherValue > 0) {
+      total += otherValue;
+    }
+  }
   totalAmountEl.textContent = "¥" + total;
 }
 
@@ -244,25 +326,48 @@ plateItems.forEach(function (item) {
   var countEl = item.querySelector(".count");
   var plateBtn = item.querySelector(".plate-circle");
   var minusBtn = item.querySelector(".minus-btn");
-  var count = 0;
 
   function setCount(next) {
     if (next < 0) {
       next = 0;
     }
-    count = next;
-    countEl.textContent = String(count);
+    item.setAttribute("data-count", String(next));
+    countEl.textContent = String(next);
     updateTotal();
   }
 
   plateBtn.addEventListener("click", function () {
-    setCount(count + 1);
+    var current = Number(item.getAttribute("data-count")) || 0;
+    setCount(current + 1);
   });
 
   minusBtn.addEventListener("click", function () {
-    setCount(count - 1);
+    var current = Number(item.getAttribute("data-count")) || 0;
+    setCount(current - 1);
   });
 });
+
+if (otherInput) {
+  otherInput.addEventListener("input", function () {
+    updateTotal();
+  });
+}
+
+if (resetBtn) {
+  resetBtn.addEventListener("click", function () {
+    plateItems.forEach(function (item) {
+      item.setAttribute("data-count", "0");
+      var countEl = item.querySelector(".count");
+      if (countEl) {
+        countEl.textContent = "0";
+      }
+    });
+    if (otherInput) {
+      otherInput.value = "";
+    }
+    updateTotal();
+  });
+}
 </script>
 </body>
 </html>
