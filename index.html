@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>寿司郎计价器</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  background: #f3f4f6;
+  color: #111827;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px 16px 32px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 20px 20px 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.plates-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 12px;
+  margin-top: 12px;
+}
+
+.plate-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.plate-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.15);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.plate-circle:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
+  opacity: 0.92;
+}
+
+.plate-circle.white {
+  background: #ffffff;
+  color: #111827;
+}
+
+.plate-circle.red {
+  background: #fb4c4c;
+  color: #ffffff;
+}
+
+.plate-circle.gray {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.plate-circle.yellow {
+  background: #facc15;
+  color: #111827;
+}
+
+.plate-circle.black {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.plate-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.minus-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: #e5e7eb;
+  color: #4b5563;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.minus-btn:active {
+  background: #d1d5db;
+  transform: translateY(1px);
+}
+
+.count {
+  min-width: 18px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.total-card {
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.total-label {
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.total-amount {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #111827;
+}
+
+@media (max-width: 360px) {
+  .plate-circle {
+    width: 72px;
+    height: 72px;
+    font-size: 16px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+    <div class="header">
+      <div class="title">寿司郎计价器</div>
+      <div class="subtitle">点击盘子增加，点击减号减少</div>
+    </div>
+    <div class="plates-grid">
+      <div class="plate-item" data-price="8">
+        <button class="plate-circle white">¥8</button>
+        <div class="plate-controls">
+          <button class="minus-btn">-</button>
+          <div class="count">0</div>
+        </div>
+      </div>
+      <div class="plate-item" data-price="10">
+        <button class="plate-circle red">¥10</button>
+        <div class="plate-controls">
+          <button class="minus-btn">-</button>
+          <div class="count">0</div>
+        </div>
+      </div>
+      <div class="plate-item" data-price="15">
+        <button class="plate-circle gray">¥15</button>
+        <div class="plate-controls">
+          <button class="minus-btn">-</button>
+          <div class="count">0</div>
+        </div>
+      </div>
+      <div class="plate-item" data-price="20">
+        <button class="plate-circle yellow">¥20</button>
+        <div class="plate-controls">
+          <button class="minus-btn">-</button>
+          <div class="count">0</div>
+        </div>
+      </div>
+      <div class="plate-item" data-price="28">
+        <button class="plate-circle black">¥28</button>
+        <div class="plate-controls">
+          <button class="minus-btn">-</button>
+          <div class="count">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="total-card">
+      <div class="total-label">总价</div>
+      <div class="total-amount" id="totalAmount">¥0</div>
+    </div>
+  </div>
+</div>
+<script>
+var plateItems = document.querySelectorAll(".plate-item");
+var totalAmountEl = document.getElementById("totalAmount");
+
+function updateTotal() {
+  var total = 0;
+  plateItems.forEach(function (item) {
+    var price = Number(item.getAttribute("data-price"));
+    var countText = item.querySelector(".count").textContent;
+    var count = Number(countText) || 0;
+    total += price * count;
+  });
+  totalAmountEl.textContent = "¥" + total;
+}
+
+plateItems.forEach(function (item) {
+  var countEl = item.querySelector(".count");
+  var plateBtn = item.querySelector(".plate-circle");
+  var minusBtn = item.querySelector(".minus-btn");
+  var count = 0;
+
+  function setCount(next) {
+    if (next < 0) {
+      next = 0;
+    }
+    count = next;
+    countEl.textContent = String(count);
+    updateTotal();
+  }
+
+  plateBtn.addEventListener("click", function () {
+    setCount(count + 1);
+  });
+
+  minusBtn.addEventListener("click", function () {
+    setCount(count - 1);
+  });
+});
+</script>
+</body>
+</html>
+
