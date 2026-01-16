@@ -242,6 +242,119 @@ body {
   font-weight: 600;
 }
 
+.other-summary-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.other-list-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #2563eb;
+  background: rgba(219, 234, 254, 0.9);
+  cursor: pointer;
+}
+
+.other-list-btn:active {
+  background: #bfdbfe;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  z-index: 50;
+}
+
+.modal-backdrop.show {
+  display: flex;
+}
+
+.modal-panel {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.24);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+.modal-empty {
+  font-size: 13px;
+  color: #6b7280;
+  padding: 8px 0;
+}
+
+.modal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-item-main {
+  font-size: 14px;
+  color: #111827;
+}
+
+.modal-item-delete {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.modal-item-delete:active {
+  background: #fecaca;
+}
+
 .reset-btn {
   margin-top: 18px;
   width: 100%;
@@ -325,13 +438,28 @@ body {
         <div class="other-unit">元</div>
         <button class="other-add-btn" id="otherAddBtn">添加</button>
       </div>
-      <div class="other-summary" id="otherSummary">已添加 0 笔，合计 ¥0</div>
+      <div class="other-summary-row">
+        <div class="other-summary" id="otherSummary">已添加 0 笔，合计 ¥0</div>
+        <button class="other-list-btn" id="otherListBtn">明细</button>
+      </div>
     </div>
     <div class="total-card">
       <div class="total-label">总价</div>
       <div class="total-amount" id="totalAmount">¥0</div>
     </div>
     <button class="reset-btn" id="resetBtn">重置</button>
+  </div>
+</div>
+<div class="modal-backdrop" id="otherModal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div class="modal-title">其他金额明细</div>
+      <button class="modal-close" id="otherModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-empty" id="otherModalEmpty">暂无记录</div>
+      <ul class="modal-list" id="otherModalList"></ul>
+    </div>
   </div>
 </div>
 <script>
@@ -341,6 +469,11 @@ var otherInput = document.getElementById("otherAmount");
 var otherAddBtn = document.getElementById("otherAddBtn");
 var otherSummary = document.getElementById("otherSummary");
 var resetBtn = document.getElementById("resetBtn");
+var otherListBtn = document.getElementById("otherListBtn");
+var otherModal = document.getElementById("otherModal");
+var otherModalClose = document.getElementById("otherModalClose");
+var otherModalList = document.getElementById("otherModalList");
+var otherModalEmpty = document.getElementById("otherModalEmpty");
 var otherItems = [];
 
 function updateTotal() {
@@ -364,6 +497,36 @@ function updateTotal() {
     });
     otherSummary.textContent = "已添加 " + otherItems.length + " 笔，合计 ¥" + otherTotal;
   }
+}
+
+function renderOtherModalList() {
+  if (!otherModalList || !otherModalEmpty) {
+    return;
+  }
+  otherModalList.innerHTML = "";
+  if (otherItems.length === 0) {
+    otherModalEmpty.style.display = "block";
+    return;
+  }
+  otherModalEmpty.style.display = "none";
+  otherItems.forEach(function (value, index) {
+    var li = document.createElement("li");
+    li.className = "modal-item";
+    var main = document.createElement("div");
+    main.className = "modal-item-main";
+    main.textContent = "第 " + (index + 1) + " 笔：¥" + value;
+    var delBtn = document.createElement("button");
+    delBtn.className = "modal-item-delete";
+    delBtn.textContent = "删除";
+    delBtn.addEventListener("click", function () {
+      otherItems.splice(index, 1);
+      updateTotal();
+      renderOtherModalList();
+    });
+    li.appendChild(main);
+    li.appendChild(delBtn);
+    otherModalList.appendChild(li);
+  });
 }
 
 plateItems.forEach(function (item) {
@@ -400,6 +563,27 @@ if (otherAddBtn && otherInput) {
     otherItems.push(value);
     otherInput.value = "";
     updateTotal();
+  });
+}
+
+if (otherListBtn && otherModal) {
+  otherListBtn.addEventListener("click", function () {
+    renderOtherModalList();
+    otherModal.classList.add("show");
+  });
+}
+
+if (otherModalClose && otherModal) {
+  otherModalClose.addEventListener("click", function () {
+    otherModal.classList.remove("show");
+  });
+}
+
+if (otherModal) {
+  otherModal.addEventListener("click", function (event) {
+    if (event.target === otherModal) {
+      otherModal.classList.remove("show");
+    }
   });
 }
 
